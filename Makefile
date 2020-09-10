@@ -1,9 +1,8 @@
 PROJECT_NAME     := blinky_pca10059_mbr
 TARGETS          := nrf52840_xxaa
 OUTPUT_DIRECTORY := build
-
-# SDK_ROOT := ../../../../../..
 PROJ_DIR := .
+DEVICE_PORT ?= /dev/null
 
 $(OUTPUT_DIRECTORY)/nrf52840_xxaa.out: \
 	LINKER_SCRIPT  := ./config/blinky_gcc_nrf52.ld
@@ -127,7 +126,7 @@ help:
 	@echo		flash_mbr
 	@echo		sdk_config - starting external tool for editing sdk_config.h
 	@echo		flash      - flashing binary
-	@echo   compiledb  - Generate compile_commands.json
+	@echo   	compiledb  - Generate compile_commands.json
 
 TEMPLATE_PATH := $(SDK_ROOT)/components/toolchain/gcc
 
@@ -142,7 +141,7 @@ $(foreach target, $(TARGETS), $(call define_target, $(target)))
 flash: default
 	@echo Flashing: $(OUTPUT_DIRECTORY)/nrf52840_xxaa.hex
 	nrfutil pkg generate --hw-version 52 --debug-mode --sd-req 0x00 --application $(OUTPUT_DIRECTORY)/nrf52840_xxaa.hex $(OUTPUT_DIRECTORY)/dfu.zip
-	nrfutil dfu usb-serial -pkg build/dfu.zip -p /dev/tty.usbmodemFA131
+	nrfutil dfu usb-serial -pkg build/dfu.zip -p $(DEVICE_PORT)
 
 # Flash softdevice
 flash_mbr:

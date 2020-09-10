@@ -1,3 +1,6 @@
+/*
+    One wire lib ported from https://github.com/PaulStoffregen/OneWire
+*/
 #pragma once
 
 #include <stdint.h>
