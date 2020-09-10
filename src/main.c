@@ -23,22 +23,14 @@ int main(void)
     /* Configure board. */
     bsp_board_init(BSP_INIT_LEDS);
 
-
-    // int pin = NRF_GPIO_PIN_MAP(1, 10);
-    // nrf_gpio_cfg_output(pin);
-
-    for (int i = 0; i < 6; i++)
-    {
-        bsp_board_led_invert(0);
-        nrf_delay_ms(500);
-    }
-
-    // ow_target_search(0x28);
-
-    /* Toggle LEDs. */
     while (true) {
-        bsp_board_leds_off();
-        nrf_delay_ms(500);
+        //Blink to start a new reading
+        bsp_board_led_off(0);
+        for (int i = 0; i < 4; i++) {
+            bsp_board_led_invert(0);
+            nrf_delay_ms(100);
+        }
+
         uint8_t addr[8];
         if (!ow_search(DS18B20PIN, addr, true)) {
             continue;
@@ -47,6 +39,12 @@ int main(void)
         bool present = ow_reset(DS18B20PIN);
         if (present) {
             ow_select(DS18B20PIN, addr);
+            ow_write(DS18B20PIN, 0x44, false); // start conversion
+
+            nrf_delay_ms(1000);
+
+            ow_reset(DS18B20PIN);
+            ow_select(DS18B20PIN, addr);
             ow_write(DS18B20PIN, 0xBE, false); // Read Scratchpad
 
             uint8_t data[12];
@@ -54,9 +52,10 @@ int main(void)
                 data[i] = ow_read(DS18B20PIN);
             }
 
+            // Clear for new render
+            bsp_board_leds_off();
             if (ow_crc8(data, 8)) {
                 bsp_board_led_on(0);
-
                 // Convert the data to actual temperature
                 // because the result is a 16 bit signed integer, it should
                 // be stored to an "int16_t" type, which is always 16 bits
@@ -71,13 +70,12 @@ int main(void)
                 float temperature = (float)raw / 16.0;
                 if (temperature < 20.0) {
                     bsp_board_led_on(BLUE);
-                } else if (temperature > 35.0) {
+                } else if (temperature > 30.0) {
                     bsp_board_led_on(RED);
                 } else {
                     bsp_board_led_on(GREEN);
                 }
             }
         }
-        nrf_delay_ms(5000);
     }
 }
