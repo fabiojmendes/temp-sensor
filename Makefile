@@ -142,7 +142,7 @@ $(foreach target, $(TARGETS), $(call define_target, $(target)))
 flash: default
 	@echo Flashing: $(OUTPUT_DIRECTORY)/nrf52840_xxaa.hex
 	nrfutil pkg generate --hw-version 52 --debug-mode --sd-req 0x00 --application $(OUTPUT_DIRECTORY)/nrf52840_xxaa.hex $(OUTPUT_DIRECTORY)/dfu.zip
-	nrfutil dfu usb-serial -pkg build/dfu.zip -p /dev/cu.usbmodemFA131
+	nrfutil dfu usb-serial -pkg build/dfu.zip -p /dev/tty.usbmodemFA131
 
 # Flash softdevice
 flash_mbr:
